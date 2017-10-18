@@ -16,8 +16,11 @@ public class MyFirstRobot extends AdvancedRobot {
 	private double fieldW, fieldH;
 	private double x, y;
 	private byte direction = 1;
-
-	private int wallBuffer = 200;
+	private int turnSwitch;
+	
+	private int wallBuffer = 200;		// should keep this semi-small just to prevent the bot from getting
+						// stuck in a location within the buffer and not executing the 
+						// continuous loop in run()
 
 	/**
 	 * run: MyFirstRobot's default behavior
@@ -25,7 +28,8 @@ public class MyFirstRobot extends AdvancedRobot {
 	public void run() {
 		// Initialization of the robot should be put here
 		fieldW = this.getBattleFieldWidth();
-		fieldH = this.getBattleFieldWidth();
+		fieldH = this.getBattleFieldHeight(); // was width, same as above before. Just changed in case of
+							// a scenario where width and height would be different
 
 		addCustomEvent(new Condition("sf_wall_proximity") {
 			public boolean test() {
@@ -47,10 +51,13 @@ public class MyFirstRobot extends AdvancedRobot {
 		setColors(Color.DARK_GRAY, Color.blue, Color.green); // body,gun,radar
 
 		// Robot main loop
+		turnSwitch = 1;
+		
 		while (true) {
 			turnRadarRight(360);
 			Random r = new Random();
 			move(r.nextInt(50) + 50);
+			turnSwitch *= -1;
 
 		}
 	}
@@ -64,7 +71,13 @@ public class MyFirstRobot extends AdvancedRobot {
 	}
 
 	public void move(int amount) {
-		ahead(amount * direction);
+		ahead(amount * direction);	// also, I think it's a bit easier to keep the movement forward, from a 
+						// standpoint of using the scanner and manipulating the reactive movement
+						// from the robot relative the location of the scanner
+		if (turnSwitch == 1)			// this is just to make the movement a bit more random
+			turnRight(amount + 20);		// rather than just forward until another event is triggered
+		else					// You feel me?
+			turnLeft(amount + 20);
 	}
 
 	/**
